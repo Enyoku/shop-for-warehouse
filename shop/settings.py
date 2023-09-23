@@ -12,13 +12,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 import environ
+from datetime import timedelta
 
 from pathlib import Path
 
 env = environ.Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str),
-    
+
     DATABASE_NAME=(str),
     DATABASE_USER=(str),
     DATABASE_PASSWORD=(str),
@@ -53,10 +54,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     'rest_framework',
+    'rest_framework_simplejwt',
     'django_filters',
-    
+
+    'account',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +71,20 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+}
 
 ROOT_URLCONF = 'shop.urls'
 
