@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
-import environ
 from datetime import timedelta
-
 from pathlib import Path
+
+import environ
 
 env = environ.Env(
     DEBUG=(bool, False),
@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'account',
+    'product',
 ]
 
 MIDDLEWARE = [

@@ -1,8 +1,8 @@
-from django.shortcuts import render
-from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-from rest_framework.decorators import api_view
+from django.contrib.auth.models import User
+from django.shortcuts import render
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from account.serializers import SignUpSerializer
@@ -12,7 +12,7 @@ from account.serializers import SignUpSerializer
 def register(request):
     data = request.data
     user = SignUpSerializer(data=data)
-    
+
     if user.is_valid():
         if not User.objects.filter(username=data['email']).exists():
             user = User.objects.create(
@@ -27,5 +27,3 @@ def register(request):
             return Response({'error': 'User is already exists'}, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(user.errors)
-
-    
