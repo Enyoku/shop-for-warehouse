@@ -3,8 +3,10 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 
 from product.models import Category, Product
+from product.filters import ProductFilter
 from product.serializers import CategorySerializer, ProductSerializer
 
 
@@ -59,6 +61,23 @@ def new_product(request):
 
 @api_view(['GET'])
 def get_all_products(request):
-    products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
-    return Response({'products': serializer.data})
+    filterset = ProductFilter(
+        request.GET, 
+        queryset=Product.objects.all().order_by('id')
+    )
+
+    count = filterset.qs.count()
+
+    # Pagination
+    resPerPage = 6
+
+    paginator = PageNumberPagination()
+    paginator.page_size = resPerPage
+    queryset = paginator.paginate_queryset(filterset.qs, request)
+
+    serializer = ProductSerializer(queryset, many=True)
+    return Response({
+        'resPerPage': resPerPage,
+        'count': count,
+        'products': serializer.data
+    })
