@@ -6,7 +6,7 @@ from product.models import Category, Product
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = ('name',)
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -18,8 +18,8 @@ class ProductSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'name': {'required': True, 'allow_blank': False},
             'article': {'required': True, 'allow_blank': False},
-            'category': {'required': True, 'allow_blank': False},
+            'category': {'required': True},
             'firm': {'required': True, 'allow_blank': False},
-            'price': {'required': True, 'allow_blank': False},
-            'amount': {'required': True, 'allow_blank': False},
+            'price': {'required': True},
+            'amount': {'required': True},
         }
