@@ -9,9 +9,9 @@ class ProductFilter(filters.FilterSet):
 
     min_price = filters.NumberFilter(field_name='price' or 0, lookup_expr='gte')
     max_price = filters.NumberFilter(field_name='price' or 1000000, lookup_expr='lte')
-    
+
     in_stock = filters.NumberFilter(field_name='amount' or 0, lookup_expr='gt')
-    
+
     category_name = filters.CharFilter(field_name='category_id__name', lookup_expr='icontains')
 
     class Meta:

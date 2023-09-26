@@ -14,7 +14,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = "__all__"
         read_only_fields = ('created_at', 'updated_at')
-        
+
         extra_kwargs = {
             'name': {'required': True, 'allow_blank': False},
             'article': {'required': True, 'allow_blank': False},
