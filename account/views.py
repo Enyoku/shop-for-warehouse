@@ -27,7 +27,7 @@ def register(request):
         else:
             return Response({'error': 'User is already exists'}, status=status.HTTP_400_BAD_REQUEST)
     else:
-        return Response(user.errors)
+        return Response(user.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -35,7 +35,7 @@ def register(request):
 def me(request):
     current_user = User.objects.get(email=request.user)
     serializer = UserSerializer(current_user, many=False)
-    return Response({'user': serializer.data})
+    return Response({'user': serializer.data}, status=status.HTTP_200_OK)
 
 
 @api_view(['PUT'])
@@ -55,4 +55,12 @@ def update_user(request):
 
     serializer = UserSerializer(user, many=False)
     
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_user(request):
+    user = User.objects.get(email=request.user)
+    user.delete()
+    return Response({'details': 'deleted'}, status=status.HTTP_200_OK)
