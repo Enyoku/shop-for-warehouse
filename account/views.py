@@ -1,12 +1,18 @@
+import datetime
+
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404, render
+from django.utils.crypto import get_random_string
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from account.serializers import SignUpSerializer, UserSerializer
+from utils.common import get_current_host
 
 
 @api_view(['POST'])
@@ -54,7 +60,7 @@ def update_user(request):
     user.save()
 
     serializer = UserSerializer(user, many=False)
-    
+
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -64,3 +70,32 @@ def delete_user(request):
     user = User.objects.get(email=request.user)
     user.delete()
     return Response({'details': 'deleted'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def forgot_password(request):
+    data = request.data
+
+    user = get_object_or_404(User, email=data['email'])
+
+    token = get_random_string(length=32)
+    exp_date = datetime.datetime.now() + datetime.timedelta(minutes=30)
+
+    user.profile.reset_password_token = token
+    user.profile.reset_password_expire = exp_date
+
+    user.profile.save()
+
+    host = get_current_host(request)
+    link = f"{host}/api/account/reset_password/{token}"
+
+    msg = f"Здравствуйте, {user.first_name}.\n Скопируйте приведеную ниже ссылку и вставьте её в адресную строку браузера.\n {link}"
+
+    send_mail(
+        subject="Инструкция по сбросу пароля.",
+        message=msg,
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[data['email']]
+    )
+
+    return Response({'details': 'Инструкция по сбросу пароля отправлена на почту: {email}'.format(email=data['email'])})
