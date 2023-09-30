@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.serializers import SignUpSerializer, UserSerializer
+from account.models import Profile
 from utils.common import get_current_host
 
 
@@ -99,3 +100,25 @@ def forgot_password(request):
     )
 
     return Response({'details': 'Инструкция по сбросу пароля отправлена на почту: {email}'.format(email=data['email'])})
+
+
+@api_view(['POST'])
+def reset_password(request, token):
+    data = request.data
+
+    user = get_object_or_404(User, profile__reset_password_token=token)
+ 
+    if user.profile.reset_password_expire.replace(tzinfo=None) < datetime.datetime.now():
+        return Response({'error': 'Token is expired'}, status=status.HTTP_400_BAD_REQUEST)
+    if data['password'] != data['confirm_password']:
+        return Response({"error": "Passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.password = make_password(data['password'])
+    user.profile.reset_password_token = ""
+    user.profile.reset_password_expire = None
+
+    user.profile.save()
+    user.save()
+ 
+    return Response({'details': 'Passwords reset successfully'})
+ 
