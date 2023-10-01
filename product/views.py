@@ -43,7 +43,6 @@ def get_all_categories(request):
 @permission_classes([IsAuthenticated])
 def new_product(request):
     data = request.data
-    print(dict(**data))
     serializer = ProductSerializer(data=data)
     if serializer.is_valid():
         product = Product.objects.create(
