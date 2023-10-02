@@ -27,13 +27,3 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         user = obj.user
         serializer = ClientSerializer(user, many=False)
         return serializer.data
-
-
-class OrderReadSerializer(serializers.ModelSerializer):
-    first_name = serializers.SerializerMethodField()
-    last_name = serializers.SerializerMethodField
-    orderItems = serializers.SerializerMethodField(method_name='get_order_items', read_only=True)
-
-    class Meta:
-        model = Order
-        fields = ("first_name", "last_name", "total_price", "order_status", "payment_status", "delivery_address")

@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from order.models import Order, OrderList
-from order.serializers import OrderListSerializer, OrderCreateSerializer, OrderReadSerializer
+from order.serializers import OrderListSerializer, OrderCreateSerializer
 from product.models import Product
 
 
@@ -21,6 +21,8 @@ def new_order(request):
     if order_list and len(order_list) == 0:
         return Response({"error": "No order items. Please add at least one product"}, status=status.HTTP_400_BAD_REQUEST)
     else:
+        for item in order_list:
+            item['price'] = Product.objects.get(id=item['product']).price
         total_amount = sum(item['price'] * item['amount'] for item in order_list)
 
         order = Order.objects.create(
@@ -30,7 +32,7 @@ def new_order(request):
             payment_status=data['payment_status'],
             delivery_address=data['delivery_address']
         )
-        
+
         for i in order_list:
             product = Product.objects.get(id=i['product'])
 
