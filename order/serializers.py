@@ -11,7 +11,7 @@ class OrderListSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class OrderCreateSerializer(serializers.ModelSerializer):
+class OrderSerializer(serializers.ModelSerializer):
     orderList = serializers.SerializerMethodField(method_name='get_order_list', read_only=True)
     user = serializers.SerializerMethodField(method_name="get_user_credentials", read_only=True)
     class Meta:

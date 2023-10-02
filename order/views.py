@@ -2,11 +2,13 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from order.models import Order, OrderList
-from order.serializers import OrderListSerializer, OrderCreateSerializer
+from order.serializers import OrderListSerializer, OrderSerializer
+from order.filters import OrderFilters
 from product.models import Product
 
 
@@ -49,3 +51,42 @@ def new_order(request):
 
         serializer = OrderCreateSerializer(order, many=False)
         return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_orders(request):
+    user = get_object_or_404(User, email=request.user)
+    filterset = OrderFilters(
+        request.GET,
+        queryset=Order.objects.filter(user=user.pk).order_by("id")
+    )
+
+    count = filterset.qs.count()
+
+    # Pagination
+    resPerPage = 3
+
+    paginator = PageNumberPagination()
+    paginator.page_size = resPerPage
+    queryset = paginator.paginate_queryset(filterset.qs, request)
+
+    serializer = OrderSerializer(queryset, many=True)
+    return Response({
+        'resPerPage': resPerPage,
+        'count': count,
+        'orders': serializer.data
+    })
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def process_order(request, id):
+    data = request.data
+    order = get_object_or_404(Order, id=id)
+
+    order.order_status = data['order_status']
+    order.save()
+
+    serializer = OrderSerializer(order, many=False)
+    return Response({'order': serializer.data})
