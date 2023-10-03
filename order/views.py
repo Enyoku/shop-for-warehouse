@@ -50,7 +50,7 @@ def new_order(request):
             product.save()
 
         serializer = OrderCreateSerializer(order, many=False)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
@@ -76,7 +76,7 @@ def get_orders(request):
         'resPerPage': resPerPage,
         'count': count,
         'orders': serializer.data
-    })
+    }, status=status.HTTP_200_OK)
 
 
 @api_view(['PUT'])
@@ -89,4 +89,12 @@ def process_order(request, id):
     order.save()
 
     serializer = OrderSerializer(order, many=False)
-    return Response({'order': serializer.data})
+    return Response({'order': serializer.data}, status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def delete_order(request, id):
+    order = get_object_or_404(Order, id=id)
+    order.delete()
+    return Response({'details': 'Order has been deleted'}, status=status.HTTP_200_OK)
