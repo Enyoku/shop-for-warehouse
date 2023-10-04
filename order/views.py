@@ -5,6 +5,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+import requests
+from rest_framework.renderers import JSONRenderer
 
 from order.models import Order, OrderList
 from order.serializers import OrderListSerializer, OrderSerializer
@@ -98,3 +100,28 @@ def delete_order(request, id):
     order = get_object_or_404(Order, id=id)
     order.delete()
     return Response({'details': 'Order has been deleted'}, status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def order_confirmation(request, id):
+    data = request.data
+    user = request.user
+
+    # Some payment code
+
+    order = get_object_or_404(Order, id=id)
+    if str(order.user.email) == str(user):
+        order.payment_status = data['payment_status']
+        order.save()
+
+        serializer = OrderSerializer(order)
+
+        req = requests.post(
+            url="http://127.0.0.1:8080/order_info",
+            data=serializer.data
+        )
+
+        return Response({'details': serializer.data})
+    else:
+        return Response({'error': 'something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
