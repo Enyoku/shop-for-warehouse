@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -107,7 +107,7 @@ def reset_password(request, token):
     data = request.data
 
     user = get_object_or_404(User, profile__reset_password_token=token)
- 
+
     if user.profile.reset_password_expire.replace(tzinfo=None) < datetime.datetime.now():
         return Response({'error': 'Token is expired'}, status=status.HTTP_400_BAD_REQUEST)
     if data['password'] != data['confirm_password']:
@@ -119,6 +119,5 @@ def reset_password(request, token):
 
     user.profile.save()
     user.save()
- 
+
     return Response({'details': 'Passwords reset successfully'})
- 

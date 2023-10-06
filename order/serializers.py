@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from order.models import Order, OrderList
 from account.serializers import ClientSerializer
+from order.models import Order, OrderList
 
 
 class OrderListSerializer(serializers.ModelSerializer):
@@ -14,6 +14,7 @@ class OrderListSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     orderList = serializers.SerializerMethodField(method_name='get_order_list', read_only=True)
     user = serializers.SerializerMethodField(method_name="get_user_credentials", read_only=True)
+
     class Meta:
         model = Order
         fields = "__all__"
@@ -22,7 +23,7 @@ class OrderSerializer(serializers.ModelSerializer):
         order_list = obj.orderlistitems.all()
         serializer = OrderListSerializer(order_list, many=True)
         return serializer.data
-    
+
     def get_user_credentials(self, obj):
         user = obj.user
         serializer = ClientSerializer(user, many=False)

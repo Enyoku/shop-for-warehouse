@@ -1,16 +1,16 @@
+import requests
 from django.contrib.auth.models import User
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.response import Response
-import requests
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 
-from order.models import Order, OrderList
-from order.serializers import OrderListSerializer, OrderSerializer
 from order.filters import OrderFilters
+from order.models import Order, OrderList
+from order.serializers import OrderSerializer
 from product.models import Product
 
 
@@ -51,7 +51,7 @@ def new_order(request):
             product.amount -= item.amount
             product.save()
 
-        serializer = OrderCreateSerializer(order, many=False)
+        serializer = OrderSerializer(order, many=False)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -117,9 +117,11 @@ def order_confirmation(request, id):
 
         serializer = OrderSerializer(order)
 
+        json = JSONRenderer().render(data=serializer.data)
+
         req = requests.post(
-            url="http://127.0.0.1:8080/order_info",
-            data=serializer.data
+            url="http://127.0.0.1:8080/order_info/create",
+            data=json
         )
 
         return Response({'details': serializer.data})

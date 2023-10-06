@@ -23,13 +23,12 @@ class Order(models.Model):
         choices=OrderStatus.choices,
         default=OrderStatus.PROCESSING
     )
-    payment_status=models.CharField(
+    payment_status = models.CharField(
         max_length=40,
         choices=PaymentStatus.choices,
         default=PaymentStatus.UNPAID
     )
     delivery_address = models.CharField(max_length=255, null=False, blank=False)
-
 
     def __str__(self):
         return f"{self.id} | {self.order_status}"
