@@ -119,6 +119,14 @@ def update_product_credentials(request, id):
         product.save()
 
         serializer = ProductSerializer(product, many=False)
+        json = JSONRenderer().render(data=serializer.data)
+
+        req = requests.patch(
+            url=f"http://127.0.0.1:8080/item/{id}",
+            data=json
+        )
+
+        serializer = ProductSerializer(product, many=False)
         return Response({'product': serializer.data}, status=status.HTTP_200_OK)
     else:
         return Response({'error': serializer.errors})
@@ -129,4 +137,7 @@ def update_product_credentials(request, id):
 def delete_product(request, id):
     product = get_object_or_404(Product, id=id)
     product.delete()
+    req = requests.delete(
+        url=f"http://127.0.0.1:8080/item/{id}"
+    )
     return Response({'details': 'deleted'}, status=status.HTTP_200_OK)
