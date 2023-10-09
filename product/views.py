@@ -60,7 +60,7 @@ def new_product(request):
         json = JSONRenderer().render(data=serializer.data)
 
         req = requests.post(
-            url="http://127.0.0.1:8080/item",
+            url="http://127.0.0.1:8080/item/create",
             data=json
         )
 
