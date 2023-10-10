@@ -122,7 +122,7 @@ def update_product_credentials(request, id):
         json = JSONRenderer().render(data=serializer.data)
 
         req = requests.patch(
-            url=f"http://127.0.0.1:8080/item/{id}",
+            url=f"http://127.0.0.1:8080/item/{id}/update",
             data=json
         )
 
