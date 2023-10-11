@@ -24,6 +24,11 @@ def create_new_category(request):
         if not Category.objects.filter(name=data['name']).exists():
             category = Category.objects.create(name=data['name'])
             serializer = CategorySerializer(category, many=False)
+            json = JSONRenderer().render(serializer.data)
+            req = requests.post(
+                url="http://127.0.0.1:8080/category/create",
+                data=json
+            )
             return Response({'category': serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({'error': 'Category is already exists'}, status=status.HTTP_400_BAD_REQUEST)
